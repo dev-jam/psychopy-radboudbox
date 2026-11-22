@@ -1,0 +1,27 @@
+Source: psychopy-radboudbox
+Section: python
+Priority: optional
+Maintainer: Bob Rosbag <debian@bobrosbag.nl>
+Build-Depends: debhelper-compat (= 13),
+               dh-sequence-python3,
+               pybuild-plugin-pyproject,
+               python3-all,
+               python3-poetry-core,
+Standards-Version: 4.7.2
+Rules-Requires-Root: no
+Homepage: https://github.com/dev-jam/psychopy-radboudbox
+Vcs-Browser: https://github.com/dev-jam/psychopy-radboudbox/tree/debian/latest
+Vcs-Git: https://github.com/dev-jam/psychopy-radboudbox.git -b debian/latest
+
+Package: python3-psychopy-radboudbox
+Architecture: all
+# PsychoPy is not in Debian yet: add it to Depends when it is.
+Depends: ${misc:Depends},
+         ${python3:Depends},
+         python3-rusocsci (>= 0.9.2),
+         python3-serial (>= 3.5),
+Description: PsychoPy plugin for the Radboud Buttonbox
+ This plugin for the PsychoPy experiment builder makes the Radboud
+ Buttonbox (BITSI) a device of PsychoPy's Button Box and Sound Sensor
+ components, and adds components that send stimulus synchronization
+ triggers and control commands, through the RuSocSci package.
