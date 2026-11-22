@@ -138,6 +138,17 @@ The Trigger and Control components use `RadboudboxSender(device='radboudbox')`: 
 **Triggers.** Radboud Buttonbox Trigger works on all boxes, in both modes and with all firmware.
 
 
+## Development
+
+- `tools/build_demo.py` builds `demo/radboudbox_latency_audio_tester.psyexp` with the Builder API; the code of its Code components is in `tools/demo_code/`. Change the demo there and build it again, or edit the `.psyexp` in Builder (then the script is out of date).
+- Tests (need PsychoPy and a display; on Linux without a screen use `xvfb-run`; a simulated box, no hardware):
+
+      xvfb-run -a python -m pytest tests
+
+  `test_hardware.py` tests the hardware classes, `test_builder.py` saves, loads, compiles and runs an experiment, `test_demo.py` runs the demo with a simulated speaker and scripted keys.
+- Not tested so far: a real box (BITSI 2015, 2018), a real sound card and speaker, the Builder GUI itself (Device Manager, only the code it generates), Windows and macOS.
+
+
 ## License
 
 This plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version (GPL-3.0-or-later).

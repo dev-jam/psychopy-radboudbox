@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Radboud Buttonbox Control without a stop time finishes once it has sent its command (its Routine never ended)
 - demo experiment `demo/radboudbox_latency_audio_tester.psyexp` (the audio latency tester with the default sampler of the lab-validation-toolbox)
 - changelog: links to the versions
+- `tools/build_demo.py` builds the demo experiment
 
 [Unreleased]: https://github.com/dev-jam/psychopy-radboudbox/compare/0.1.0...HEAD
 [0.1.0]: https://github.com/dev-jam/psychopy-radboudbox/releases/tag/0.1.0
