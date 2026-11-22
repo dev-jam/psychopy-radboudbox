@@ -62,6 +62,14 @@ ANALOG_IN_QUIET = 0.02  # (s) without a new digit: the answer is complete
 # this time. A character that arrives ends the read at once.
 READ_TIMEOUT = 0.05
 
+# Python lets a thread that runs Python code (e.g. the frame loop) keep the
+# GIL for sys.getswitchinterval(), 5 ms by default: the reader thread then
+# timestamps up to 5 ms late (measured: median 5.2 ms). While a box is open
+# the interval is at most this (measured: median 0.7 ms, max 0.9 ms)
+SWITCH_INTERVAL = 0.0005
+_switch_interval_users = []
+_switch_interval_before = None
+
 # Extended mode commands (see the README for the firmware that has them)
 COMMANDS = {'Calibrate Sound': 'CS',
             'Calibrate Voice': 'CV',
@@ -174,6 +182,7 @@ class RadboudboxDevice(BaseDevice):
         self.port = self.portInfo['port']
         # One timeout for all reads: the reader thread never changes it
         self._box._device.timeout = READ_TIMEOUT
+        _use_short_switch_interval(self)
         self._thread = threading.Thread(target=self._read_loop,
                                         name='radboudbox reader',
                                         daemon=True)
@@ -442,6 +451,7 @@ class RadboudboxDevice(BaseDevice):
             if self._thread.is_alive():
                 logging.warning('The reader thread of the Radboud Buttonbox '
                                 'did not end')
+        _release_short_switch_interval(self)
         if self._box is not None:
             try:
                 self._box.close()
@@ -455,6 +465,30 @@ class RadboudboxDevice(BaseDevice):
             self.close()
         except Exception:
             pass
+
+
+def _use_short_switch_interval(device):
+    """Sets the switch interval to SWITCH_INTERVAL while a box is open."""
+    global _switch_interval_before
+    if not _switch_interval_users:
+        _switch_interval_before = sys.getswitchinterval()
+        if _switch_interval_before > SWITCH_INTERVAL:
+            sys.setswitchinterval(SWITCH_INTERVAL)
+            logging.info(f'Radboud Buttonbox: Python switch interval '
+                         f'{_switch_interval_before * 1000:g} ms -> '
+                         f'{SWITCH_INTERVAL * 1000:g} ms')
+    _switch_interval_users.append(device)
+
+
+def _release_short_switch_interval(device):
+    """Restores the switch interval when the last box is closed."""
+    if device not in _switch_interval_users:
+        return
+    _switch_interval_users.remove(device)
+    if not _switch_interval_users \
+            and sys.getswitchinterval() == SWITCH_INTERVAL \
+            and _switch_interval_before > SWITCH_INTERVAL:
+        sys.setswitchinterval(_switch_interval_before)
 
 
 def resolve_device(port, extendedMode, wrongPortSettings):

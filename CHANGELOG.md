@@ -15,3 +15,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Radboud Buttonbox Trigger and Radboud Buttonbox Control components
 - hardware classes for Coder: a reader thread per box timestamps each character when it arrives
 - the port settings checks of the OpenSesame plugin (latency timer, COM port number, FIFO buffers, ModemManager)
+- while a box is open, Python's switch interval is 0.5 ms instead of 5 ms, so the reader thread timestamps within 1 ms also while the frame loop runs Python code

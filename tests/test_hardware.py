@@ -69,6 +69,37 @@ def test_invalid_settings(fake_box, kwargs, message):
         RadboudboxDevice(**kwargs)
 
 
+def test_timestamps_while_python_code_runs(fake_box):
+    # The frame loop runs Python code; with Python's default switch
+    # interval (5 ms) the reader timestamped about 5 ms late
+    import sys
+    import threading
+    before = sys.getswitchinterval()
+    box = fake_box(PORT)
+    buttons = RadboudboxButtonGroup(port=PORT)
+    assert sys.getswitchinterval() == 0.0005
+    stop = threading.Event()
+
+    def busy():
+        while not stop.is_set():
+            sum(i * i for i in range(2000))
+    thread = threading.Thread(target=busy, daemon=True)
+    thread.start()
+    errors = []
+    for i in range(50):
+        time.sleep(0.003 + (i % 7) * 0.001)
+        sent = core.getTime()
+        box.press('A')
+        time.sleep(0.004)
+        errors += [r.t - sent for r in buttons.getResponses()]
+    stop.set()
+    thread.join()
+    assert len(errors) == 50
+    assert max(errors) < 0.002
+    buttons.parent.close()
+    assert sys.getswitchinterval() == before
+
+
 def test_buttons_timestamped_on_arrival(fake_box):
     box = fake_box(PORT)
     buttons = RadboudboxButtonGroup(port=PORT)
