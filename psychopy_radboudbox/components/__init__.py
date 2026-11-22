@@ -245,7 +245,7 @@ class RadboudboxTriggerComponent(BaseDeviceComponent):
 
 class RadboudboxControlComponent(BaseDeviceComponent):
     """Sends a control command to the Radboud Buttonbox (extended mode)
-    when the component starts. Analog In logs the answer of the box as
+    when the component starts; without a stop time it is then finished. Analog In logs the answer of the box as
     <name>.analogIn; Calibrate waits 1 s (be silent; put it in a Routine
     of its own).
     """
@@ -312,11 +312,20 @@ class RadboudboxControlComponent(BaseDeviceComponent):
                 code = "win.callOnFlip(%(name)s.sendCommand, %(args)s)\n"
             else:
                 code = "%(name)s.sendCommand(%(args)s)\n"
+            if self._no_stop():
+                # A command is sent once: without a stop time the component
+                # is done, otherwise its Routine would never end
+                code += "%(name)s.status = FINISHED\n"
             buff.writeIndentedLines(code % params)
             buff.setIndentLevel(-indented, relative=True)
+        if self._no_stop():
+            return
         indented = self.writeStopTestCode(buff)
         if indented:
             buff.setIndentLevel(-indented, relative=True)
+
+    def _no_stop(self):
+        return str(self.params['stopVal'].val).strip() in ('', 'None')
 
 
 for _component in (RadboudboxTriggerComponent, RadboudboxControlComponent):
