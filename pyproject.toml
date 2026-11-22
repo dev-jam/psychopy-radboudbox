@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "psychopy-radboudbox"
+version = "0.1.0"
+description = "PsychoPy plugin for the Radboud Buttonbox (BITSI): button responses, sound and voice key, and triggers"
+authors = ["Bob Rosbag <mail@bobrosbag.nl>"]
+readme = "README.md"
+packages = [
+    {include = "psychopy_radboudbox"},
+]
+license = "GPL-3.0-or-later"
+homepage = "https://github.com/dev-jam/psychopy-radboudbox"
+repository = "https://github.com/dev-jam/psychopy-radboudbox"
+keywords = ["psychopy", "radboud", "buttonbox", "bitsi"]
+
+[tool.poetry.dependencies]
+python = ">= 3.10"
+rusocsci = ">= 0.9.2"
+pyserial = ">= 3.5"
+
+# Builder finds the components and the device backends here; the hardware
+# classes are found by their import path
+[tool.poetry.plugins."psychopy.experiment.components"]
+RadboudboxTriggerComponent = "psychopy_radboudbox.components:RadboudboxTriggerComponent"
+RadboudboxControlComponent = "psychopy_radboudbox.components:RadboudboxControlComponent"
+RadboudboxButtonBoxBackend = "psychopy_radboudbox.components:RadboudboxButtonBoxBackend"
+RadboudboxSoundSensorBackend = "psychopy_radboudbox.components:RadboudboxSoundSensorBackend"
+
+[tool.poetry.plugins."psychopy.hardware"]
+radboudbox = "psychopy_radboudbox.radboudbox"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
