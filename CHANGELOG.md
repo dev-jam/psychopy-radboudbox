@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-- added: first version, the PsychoPy version of opensesame-plugin-radboudbox 7.0.1, through RuSocSci
-- added: device backends that make the Radboud Buttonbox a device of PsychoPy's own Button Box component (buttons A-H are buttons 0-7, press and release) and Sound Sensor component (sound or voice key, extended mode)
-- added: Radboud Buttonbox Trigger (a start and a stop value, synced to the screen refresh) and Radboud Buttonbox Control (the commands of radboudbox_send_control) components
-- added: hardware classes for Coder; one reader thread per box timestamps each character when it arrives, since a component reads only once per frame
-- added: the port settings checks of the OpenSesame plugin (latency timer, COM port number, FIFO buffers, ModemManager)
-- changed: while a box is open, Python's switch interval is 0.5 ms instead of 5 ms (for the whole process; restored when the last box is closed), so the reader thread timestamps within 1 ms also while the frame loop runs Python code
-- fixed: a Radboud Buttonbox Control component without a stop time never finished, so its Routine never ended; it now finishes once it has sent its command
-- added: demo: audio latency tester, the PsychoPy version of the OpenSesame audio latency tester (default sampler) of the lab-validation-toolbox
+## [0.1.0] - 2026-11-22
 
-[Unreleased]: https://github.com/dev-jam/psychopy-radboudbox/commits/main
+- first version: device backends for PsychoPy's own Button Box component (buttons A-H are buttons 0-7, press and release) and Sound Sensor component (sound or voice key), and the components Radboud Buttonbox Trigger and Radboud Buttonbox Control, ported from opensesame-plugin-radboudbox 7.0.1 (through RuSocSci)
+- hardware classes for Code components and Coder scripts; one reader thread per box timestamps each character when it arrives (the box sends no times, and a component reads only once per frame)
+- the port settings checks of the OpenSesame plugin (latency timer, COM port number, FIFO buffers, ModemManager)
+- while a box is open, Python's switch interval is 0.5 ms instead of 5 ms (for the whole process; restored when the last box is closed), so the reader thread timestamps within 1 ms also while the frame loop runs Python code
+- Radboud Buttonbox Control without a stop time finishes once it has sent its command (its Routine never ended)
+- demo experiment `demo/radboudbox_latency_audio_tester.psyexp` (the audio latency tester with the default sampler of the lab-validation-toolbox)
+- changelog: links to the versions
+
+[Unreleased]: https://github.com/dev-jam/psychopy-radboudbox/compare/0.1.0...HEAD
+[0.1.0]: https://github.com/dev-jam/psychopy-radboudbox/releases/tag/0.1.0
