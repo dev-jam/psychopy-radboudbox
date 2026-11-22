@@ -1,0 +1,7 @@
+nchannels,bit_depth,sample_rate,sound_file
+2,16,48000,2000Hz_-_16bit_-_2chan_-_48000Hz.wav
+2,16,96000,2000Hz_-_16bit_-_2chan_-_96000Hz.wav
+2,16,192000,2000Hz_-_16bit_-_2chan_-_192000Hz.wav
+2,32,48000,2000Hz_-_32bit_-_2chan_-_48000Hz.wav
+2,32,96000,2000Hz_-_32bit_-_2chan_-_96000Hz.wav
+2,32,192000,2000Hz_-_32bit_-_2chan_-_192000Hz.wav

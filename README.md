@@ -79,6 +79,25 @@ Responses that span several Routines (start in one, end in a later one) are kept
 **Testing without a box:** PsychoPy's own *Keyboard Button Box* backend of the Button Box component uses keys as buttons (the dummy mode of the OpenSesame plugin). The Trigger and Control components need a box.
 
 
+## Demo: audio latency tester
+
+`demo/radboudbox_latency_audio_tester.psyexp` (in the repository, not in the pip package) is the PsychoPy version of the OpenSesame audio latency tester of the lab-validation-toolbox (`OpenSesame_-_latency_audio_tester_-_default_sampler_-_v12.4.osexp`): a beep of 2000 Hz (100 ms) plays from the speaker, the sound key of the box hears it and sends S, and the time between them is the audio latency. The six beep files and their conditions are those of the OpenSesame tester (2 channels; 16 and 32 bit; 48, 96 and 192 kHz).
+
+Set up once on the lab computer, in Device Manager: a device *Radboud Buttonbox (BITSI) sound/voice key* with the label `soundkey`, *Key* sound, *Calibrate at the start* off (the tester calibrates after a key press, as the OpenSesame tester). Put the microphone of the sound key at the speaker.
+
+The tester asks, as the OpenSesame one, for feedback on each trial (1 yes, 2 no) and N (1, 30, 100 or 300 beeps per condition), calibrates the sound key (be silent for 1 s), and then plays the beeps. Each trial: a Sound component plays the beep, a Sound Sensor component starts detection (Detect Sound) in the same frame and waits up to 1 s for S, and a Code component computes `audio_latency` (ms) = the time S arrived − the requested onset of the beep. Per trial, the data file has `audio_latency`, the statistics of the condition so far (`latency_mean`, `latency_std`, `latency_rms` (RMS of successive differences), `latency_min`, `latency_max`, `latency_range`, computed as in the OpenSesame tester), `n_trials`, `n_timeouts`, `speaker_sample_rate`, the session timer (`beeps_done`, `time_passed`, `time_left`), the system (`os_version`, `kernel`, `os_build`) and the box (`radboudbox_type`, `radboudbox_port`, `radboudbox_id_string`, `radboudbox_port_settings`, ...).
+
+Differences with the OpenSesame tester:
+
+- **Onset.** The latency is measured from the *requested* onset: the flip at which the Sound component plays the beep (`play(when=win)`: PsychoPy's audio library schedules the start for that moment). In the OpenSesame tester it is the moment the sampler item starts the sound. So here the latency is what is left after PsychoPy's own scheduling: ideally close to 0, plus the delay of the sound key.
+- **Sample rate.** PsychoPy (2026, audio library ptb) opens one audio stream per sound card, at the card's default rate, and resamples each file to it when it is loaded. The six files therefore don't change the rate of the card, as they do with the OpenSesame default sampler; `speaker_sample_rate` in the data file is the rate that was used.
+- **Audio library.** The tester uses PsychoPy's preference (*Audio library*, default ptb). The OpenSesame default sampler of the tester used PsychoPy's sound with sounddevice; set the preference to sounddevice to compare the same library.
+- **Timeouts.** No S within 1 s is counted in `n_timeouts` and is not a latency (not in the statistics).
+- **Feedback** of a trial is shown during the next trial; there is no processing latency (`processing_duration`).
+
+Tested here only with a simulated box and a simulated speaker that the box hears 8 ms after the flip (`tests/test_demo.py`, 180 beeps): measured median 8.5 ms, never less than 8 ms. The plugin's own part of the error (the time S arrived − the time the simulated box sent it) was median 0.14 ms, 95% within 1.7 ms, max 4.0 ms, in a container with 4 virtual CPUs and software OpenGL (Xvfb), where the simulated box itself was up to 4.5 ms late. Not yet measured with a real box, speaker and sound card.
+
+
 ## Coder
 
 ```python
