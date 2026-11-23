@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "psychopy-radboudbox"
-version = "0.1.1"
+version = "0.1.2"
 description = "PsychoPy plugin for the Radboud Buttonbox (BITSI): button responses, sound and voice key, and triggers"
 authors = ["Bob Rosbag <mail@bobrosbag.nl>"]
 readme = "README.md"

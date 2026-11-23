@@ -26,9 +26,18 @@ except OSError:
 thisExp.extraInfo['os_version'] = os_version
 thisExp.extraInfo['kernel'] = platform.release()
 thisExp.extraInfo['os_build'] = platform.version()
+# The sound key of the box: a device of Device Manager, set up on each
+# computer (it is not stored in the experiment)
+soundkey = deviceManager.getDevice('soundkey')
+if type(soundkey).__name__ != 'RadboudboxSoundSensorGroup':
+    raise RuntimeError(
+        "This demo needs a device 'soundkey' in Device Manager (Builder: "
+        "Tools > Device Manager): add a device 'Radboud Buttonbox (BITSI) "
+        "sound/voice key' with the label soundkey, Key: sound, Calibrate "
+        "at the start: off (the demo calibrates after a key press). Found: "
+        f"{type(soundkey).__name__ if soundkey is not None else 'no device'}")
 # The box and its port settings (see the README of the plugin)
-for _name, _value in deviceManager.getDevice(
-        'soundkey').parent.portInfo.items():
+for _name, _value in soundkey.parent.portInfo.items():
     thisExp.extraInfo[f'radboudbox_{_name}'] = _value
 
 feedback_on = False
