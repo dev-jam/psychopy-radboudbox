@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.2] - 2026-11-23
 
 - fixed: demo: without a device 'soundkey' in Device Manager the demo stopped with an AttributeError; it now says which device to set up
 - fixed: Device Manager showed the settings of a Radboud Buttonbox device folded away under "Device" (with a black page); they are now on the device's page, as for PsychoPy's own devices
@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - changelog: links to the versions
 - `tools/build_demo.py` builds the demo experiment
 
-[Unreleased]: https://github.com/dev-jam/psychopy-radboudbox/compare/0.1.1...HEAD
+[Unreleased]: https://github.com/dev-jam/psychopy-radboudbox/compare/0.1.2...HEAD
+[0.1.2]: https://github.com/dev-jam/psychopy-radboudbox/compare/0.1.1...0.1.2
 [0.1.1]: https://github.com/dev-jam/psychopy-radboudbox/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/dev-jam/psychopy-radboudbox/releases/tag/0.1.0
