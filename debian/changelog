@@ -1,3 +1,9 @@
+psychopy-radboudbox (0.1.2-1) trixie; urgency=medium
+
+  * New upstream release.
+
+ -- Bob Rosbag <debian@bobrosbag.nl>  Mon, 23 Nov 2026 08:59:23 +0100
+
 psychopy-radboudbox (0.1.1-1) trixie; urgency=medium
 
   * New upstream release.
