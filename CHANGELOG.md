@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.1] - 2026-11-23
 
 - fixed: the Builder window did not open with the plugin installed (IndexError in psychopy_app's ComponentIcon): the component icons are now in a folder per Builder theme (light, dark, classic), 48 and 96 px, made by `tools/make_icons.py`
 
@@ -20,5 +20,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - changelog: links to the versions
 - `tools/build_demo.py` builds the demo experiment
 
-[Unreleased]: https://github.com/dev-jam/psychopy-radboudbox/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/dev-jam/psychopy-radboudbox/compare/0.1.1...HEAD
+[0.1.1]: https://github.com/dev-jam/psychopy-radboudbox/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/dev-jam/psychopy-radboudbox/releases/tag/0.1.0
