@@ -40,6 +40,56 @@ if type(soundkey).__name__ != 'RadboudboxSoundSensorGroup':
 for _name, _value in soundkey.parent.portInfo.items():
     thisExp.extraInfo[f'radboudbox_{_name}'] = _value
 
+# Hamming ramp at the start of the beep (Experiment info: hamming)
+_hamming = expInfo.get('hamming', 'yes')
+hamming_on = str(_hamming[0] if isinstance(_hamming, (list, tuple))
+                 else _hamming).lower() != 'no'
+thisExp.extraInfo['hamming'] = 'yes' if hamming_on else 'no'
+_ptb_warned = []
+
+
+def beep_ptb_status(sound):
+    """The PsychPortAudio status of the sound's track (GetStatus), or None
+    when it can't be read (another audio library).
+    """
+    try:
+        return dict(sound.track.status)
+    except Exception as e:
+        if not _ptb_warned:
+            _ptb_warned.append(True)
+            logging.warning(f'Could not read the Psychtoolbox status of the '
+                            f'beep: {e}')
+        return None
+
+
+def ptb_timing(status, audio_latency):
+    """Diagnostic columns from the PsychPortAudio status: ptb_start_delay
+    (StartTime - RequestedStartTime: how late Psychtoolbox started the beep
+    after the flip), latency_from_ptb_start (audio_latency minus that),
+    ptb_predicted_latency and ptb_xruns; None when not available.
+    """
+    out = dict.fromkeys(('ptb_start_delay', 'latency_from_ptb_start',
+                         'ptb_predicted_latency', 'ptb_xruns'))
+    if not status:
+        return out
+    requested = status.get('RequestedStartTime')
+    start = status.get('StartTime')
+    if requested and start:
+        out['ptb_start_delay'] = round((start - requested) * 1000, 2)
+        if audio_latency is not None:
+            out['latency_from_ptb_start'] = round(
+                audio_latency - out['ptb_start_delay'], 2)
+    elif not _ptb_warned:
+        _ptb_warned.append(True)
+        logging.warning(f'No StartTime/RequestedStartTime in the Psychtoolbox '
+                        f'status: {sorted(status)}')
+    if status.get('PredictedLatency') is not None:
+        out['ptb_predicted_latency'] = round(
+            status['PredictedLatency'] * 1000, 2)
+    out['ptb_xruns'] = status.get('XRuns')
+    return out
+
+
 feedback_on = False
 feedback_text = ''
 summary_text = ''

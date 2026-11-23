@@ -8,6 +8,12 @@ else:
     tester.n_timeouts += 1
 tester.n_trials += 1
 statistics = latency_statistics()
+# Diagnostics: when Psychtoolbox says the beep really started, relative to
+# the requested start (the flip), and the rest of the latency (sound key,
+# USB and the plugin's reader)
+ptb = ptb_timing(ptb_status, audio_latency)
+for _name, _value in ptb.items():
+    thisExp.addData(_name, _value)
 update_session_timer(core.getTime())
 
 thisExp.addData('audio_latency', audio_latency)

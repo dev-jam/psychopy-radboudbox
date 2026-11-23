@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+- demo: diagnostics from Psychtoolbox's status of each beep (ptb_start_delay, latency_from_ptb_start, ptb_predicted_latency, ptb_xruns), and a hamming choice in the info dialog
+
 ## [0.1.2] - 2026-11-23
 
 - fixed: demo: without a device 'soundkey' in Device Manager the demo stopped with an AttributeError; it now says which device to set up

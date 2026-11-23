@@ -43,7 +43,8 @@ settings['Save excel file'].val = False
 settings['Save psydat file'].val = False
 settings['Save log file'].val = True
 # participant and session only
-settings['Experiment info'].val = "{'participant': '0', 'session': '001'}"
+settings['Experiment info'].val = (
+    "{'participant': '0', 'session': '001', 'hamming': ['yes', 'no']}")
 
 
 def text(exp, routine, name, value, stop='', height=0.035, update='constant'):
@@ -129,7 +130,7 @@ trial.addComponent(SoundSensorComponent(
     stopVal=1.0, forceEndRoutine=False, store='first', registerOn=True))
 trial.addComponent(CodeComponent(
     exp, 'trial', name='latency',
-    beginRoutine='beep_onset = None',
+    beginRoutine=(CODE / 'begin_routine.py').read_text(),
     eachFrame=(CODE / 'each_frame.py').read_text(),
     endRoutine=(CODE / 'end_routine.py').read_text()))
 

@@ -95,6 +95,8 @@ Differences with the OpenSesame tester:
 - **Timeouts.** No S within 1 s is counted in `n_timeouts` and is not a latency (not in the statistics).
 - **Feedback** of a trial is shown during the next trial; there is no processing latency (`processing_duration`).
 
+**Diagnostics.** To tell apart where the latency and its spread come from, each row also has, from Psychtoolbox's own status of the beep (PsychPortAudio `GetStatus`): `ptb_start_delay` (ms, `StartTime` − `RequestedStartTime`: how late Psychtoolbox says it started the beep after the flip), `latency_from_ptb_start` (`audio_latency` minus that: the sound key, USB and the plugin's reader), `ptb_predicted_latency` and `ptb_xruns`. They are empty with another audio library than ptb. In the info dialog, *hamming* no loads the beep without the Sound component's hamming ramp, so it starts at full volume (the column `hamming`).
+
 Tested here only with a simulated box and a simulated speaker that the box hears 8 ms after the flip (`tests/test_demo.py`, 180 beeps): measured median 8.5 ms, never less than 8 ms. The plugin's own part of the error (the time S arrived − the time the simulated box sent it) was median 0.14 ms, 95% within 1.7 ms, max 4.0 ms, in a container with 4 virtual CPUs and software OpenGL (Xvfb), where the simulated box itself was up to 4.5 ms late. Not yet measured with a real box, speaker and sound card.
 
 
