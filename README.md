@@ -140,6 +140,7 @@ The Trigger and Control components use `RadboudboxSender(device='radboudbox')`: 
 
 ## Development
 
+- `tools/make_icons.py` makes the component icons, a PNG of 48 and 96 px per Builder theme (`psychopy_radboudbox/components/<theme>/`): Builder looks for them there, and does not open without them.
 - `tools/build_demo.py` builds `demo/radboudbox_latency_audio_tester.psyexp` with the Builder API; the code of its Code components is in `tools/demo_code/`. Change the demo there and build it again, or edit the `.psyexp` in Builder (then the script is out of date).
 - Tests (need PsychoPy and a display; on Linux without a screen use `xvfb-run`; a simulated box, no hardware):
 

@@ -40,6 +40,9 @@ from psychopy.localization import _translate
 from ..radboudbox import COMMANDS, VALUE_COMMANDS
 
 HERE = Path(__file__).parent
+# Builder reads <HERE>/<theme>/<stem>.png and <stem>@2x.png (themes light,
+# dark and classic; tools/make_icons.py makes them): iconFile only gives the
+# folder and the stem
 
 
 def _device_params(profile):
@@ -78,7 +81,7 @@ class RadboudboxButtonBoxBackend(DeviceBackend):
     """
     backendLabel = _translate('Radboud Buttonbox (BITSI)')
     deviceClass = 'psychopy_radboudbox.radboudbox.RadboudboxButtonGroup'
-    icon = 'radboudboxTrigger.png'
+    icon = 'light/radboudboxTrigger.png'
     plugin = 'psychopy-radboudbox'
 
     def getParams(self):
@@ -103,7 +106,7 @@ class RadboudboxSoundSensorBackend(DeviceBackend):
     """
     backendLabel = _translate('Radboud Buttonbox (BITSI) sound/voice key')
     deviceClass = 'psychopy_radboudbox.radboudbox.RadboudboxSoundSensorGroup'
-    icon = 'radboudboxControl.png'
+    icon = 'light/radboudboxControl.png'
     plugin = 'psychopy-radboudbox'
 
     def getParams(self):
