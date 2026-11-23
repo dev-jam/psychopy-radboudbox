@@ -62,32 +62,60 @@ def beep_ptb_status(sound):
         return None
 
 
-def ptb_timing(status, audio_latency):
-    """Diagnostic columns from the PsychPortAudio status: ptb_start_delay
-    (StartTime - RequestedStartTime: how late Psychtoolbox started the beep
-    after the flip), latency_from_ptb_start (audio_latency minus that),
-    ptb_predicted_latency and ptb_xruns; None when not available.
+def ptb_now():
+    """Psychtoolbox's clock (GetSecs), or None without Psychtoolbox."""
+    try:
+        from psychtoolbox import GetSecs
+    except ImportError:
+        return None
+    return GetSecs()
+
+
+def beep_timing(play_call, beep_onset, sensor_time, status):
+    """The timing columns of one beep, in ms (None when not available).
+    play_call: (Routine time, Psychtoolbox time, sync) of the play() call;
+    beep_onset: the flip at which the beep started (Routine time);
+    sensor_time: when the box's S arrived (Routine time); status: the
+    PsychPortAudio status of the beep (GetStatus).
     """
-    out = dict.fromkeys(('ptb_start_delay', 'latency_from_ptb_start',
-                         'ptb_predicted_latency', 'ptb_xruns'))
-    if not status:
+    out = dict.fromkeys((
+        'audio_latency', 'play_to_flip', 'latency_from_flip',
+        'ptb_start_after_play', 'ptb_start_delay', 'latency_from_ptb_start',
+        'ptb_predicted_latency', 'ptb_xruns', 'ptb_sample_rate', 'sync'))
+
+    def ms(t):
+        return round(t * 1000, 2)
+    if play_call is None:
         return out
-    requested = status.get('RequestedStartTime')
-    start = status.get('StartTime')
-    if requested and start:
-        out['ptb_start_delay'] = round((start - requested) * 1000, 2)
-        if audio_latency is not None:
-            out['latency_from_ptb_start'] = round(
-                audio_latency - out['ptb_start_delay'], 2)
-    elif not _ptb_warned:
-        _ptb_warned.append(True)
-        logging.warning(f'No StartTime/RequestedStartTime in the Psychtoolbox '
-                        f'status: {sorted(status)}')
-    if status.get('PredictedLatency') is not None:
-        out['ptb_predicted_latency'] = round(
-            status['PredictedLatency'] * 1000, 2)
-    out['ptb_xruns'] = status.get('XRuns')
+    play_time, play_ptb, sync = play_call
+    out['sync'] = 'yes' if sync else 'no'
+    if beep_onset is not None:
+        out['play_to_flip'] = ms(beep_onset - play_time)
+    if sensor_time is not None:
+        out['audio_latency'] = ms(sensor_time - play_time)
+        if beep_onset is not None:
+            out['latency_from_flip'] = ms(sensor_time - beep_onset)
+    if status:
+        start = status.get('StartTime') or 0
+        requested = status.get('RequestedStartTime') or 0
+        if start > 0 and play_ptb is not None:
+            out['ptb_start_after_play'] = ms(start - play_ptb)
+            if out['audio_latency'] is not None:
+                out['latency_from_ptb_start'] = round(
+                    out['audio_latency'] - out['ptb_start_after_play'], 2)
+        # Only with sync: the requested start is the flip
+        if start > 0 and requested > 0:
+            out['ptb_start_delay'] = ms(start - requested)
+        if status.get('PredictedLatency') is not None:
+            out['ptb_predicted_latency'] = ms(status['PredictedLatency'])
+        out['ptb_xruns'] = status.get('XRuns')
+        out['ptb_sample_rate'] = status.get('SampleRate')
     return out
+
+
+# The last play() call of the beep, set by the wrapper (begin_routine.py);
+# a dict, as the wrapper and this code both run inside run()
+play_calls = {'play_call': None}
 
 
 feedback_on = False

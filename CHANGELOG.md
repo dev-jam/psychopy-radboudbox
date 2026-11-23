@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - demo: diagnostics from Psychtoolbox's status of each beep (ptb_start_delay, latency_from_ptb_start, ptb_predicted_latency, ptb_xruns), and a hamming choice in the info dialog
 - fixed: demo: the end screen showed the text "$summary_text" instead of the summary
+- changed: demo: audio_latency is measured from the play() call of the beep (was: from the flip, latency_from_flip now), with play_to_flip, ptb_start_after_play and sync; with sync off it was negative
 
 ## [0.1.2] - 2026-11-23
 

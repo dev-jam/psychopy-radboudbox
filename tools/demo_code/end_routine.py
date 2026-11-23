@@ -1,19 +1,21 @@
 # Code component of the demo (tools/build_demo.py puts it in the .psyexp)
-if soundSensor.times != [] and beep_onset is not None:
-    audio_latency = round((soundSensor.times - beep_onset) * 1000, 2)
+# The latency from the play() call (as the OpenSesame tester measures from
+# the sampler), and where that time went: to the flip, to Psychtoolbox's
+# start, and from there to the box
+timing = beep_timing(play_calls['play_call'], beep_onset,
+                     soundSensor.times if soundSensor.times != [] else None,
+                     ptb_status)
+audio_latency = timing['audio_latency']
+if audio_latency is not None:
     tester.latencies.append(audio_latency)
 else:
     # No S within the timeout: not a latency
-    audio_latency = None
     tester.n_timeouts += 1
 tester.n_trials += 1
 statistics = latency_statistics()
-# Diagnostics: when Psychtoolbox says the beep really started, relative to
-# the requested start (the flip), and the rest of the latency (sound key,
-# USB and the plugin's reader)
-ptb = ptb_timing(ptb_status, audio_latency)
-for _name, _value in ptb.items():
-    thisExp.addData(_name, _value)
+for _name, _value in timing.items():
+    if _name != 'audio_latency':
+        thisExp.addData(_name, _value)
 update_session_timer(core.getTime())
 
 thisExp.addData('audio_latency', audio_latency)
@@ -38,7 +40,9 @@ if feedback_on:
     feedback_text = (
         f'Condition:\n\nBit depth: {bit_depth}bit\nChannels: {nchannels}\n'
         f'Sample rate: {sample_rate} Hz\n\n'
-        f'Current audio latency: {audio_latency} ms\n\n'
+        f'Current audio latency (from play): {audio_latency} ms\n'
+        f'Play to flip: {timing["play_to_flip"]} ms, Psychtoolbox start '
+        f'after play: {timing["ptb_start_after_play"]} ms\n\n'
         f'Audio latency:\n'
         f'Mean: {statistics["latency_mean"]} ± {statistics["latency_std"]} ms\n'
         f'Min: {statistics["latency_min"]} ms\n'

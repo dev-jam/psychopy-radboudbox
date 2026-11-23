@@ -22,8 +22,8 @@ from psychopy_radboudbox.components import RadboudboxSoundSensorBackend
 HERE = Path(__file__).parent
 DEMO = HERE.parent / 'demo'
 PSYEXP = 'radboudbox_latency_audio_tester.psyexp'
-LATENCY = 0.008  # (s) from the flip of the beep to the S of the box
-PTB_DELAY = 0.002  # (s) from the flip to the start Psychtoolbox reports
+LATENCY = 0.008  # (s) from the start of the beep to the S of the box
+PTB_DELAY = 0.002  # (s) from the flip (sync) or play() to the beep's start
 
 plugins.scanPlugins()
 assert plugins.loadPlugin('psychopy-radboudbox')
@@ -115,14 +115,23 @@ class FakeSound:
         pass
 
     def play(self, when=None, log=True):
+        from psychtoolbox import GetSecs
         # On core.getTime(): the experiment sets the default clock (the
         # clock of getFutureFlipTime(clock=None)) to its own clock
-        onset = core.getTime() + when.getFutureFlipTime(clock='now')
-        requested = when.getFutureFlipTime(clock='ptb')
+        # The beep starts PTB_DELAY after the flip (sync) or after play()
+        if when is not None:
+            onset = core.getTime() + when.getFutureFlipTime(clock='now')
+            requested = when.getFutureFlipTime(clock='ptb')
+            start = requested + {ptb_delay!r}
+        else:
+            onset = core.getTime()
+            requested = 0
+            start = GetSecs() + {ptb_delay!r}
+        onset += {ptb_delay!r}
         self.track = FakeTrack()
         self.track.status = {{'RequestedStartTime': requested,
-                             'StartTime': requested + {ptb_delay!r},
-                             'PredictedLatency': 0.01, 'XRuns': 0}}
+                             'StartTime': start, 'PredictedLatency': 0.01,
+                             'XRuns': 0, 'SampleRate': 48000.0}}
         self._end = onset + self.secs
         def detect():
             time.sleep(max(0, onset + {latency!r} - core.getTime()))
@@ -155,10 +164,10 @@ print('HAMMING', SOUND_CALLS.count(False))
 '''
 
 
-def run_demo(tmp_path, monkeypatch, device=True, hamming=None):
+def run_demo(tmp_path, monkeypatch, device=True, hamming=None, sync=True):
     """Compiles the demo and runs it with the fakes; returns the process
     result and the work folder. hamming: the choice in the info dialog
-    (None: its default).
+    (None: its default); sync: the beep's sync with the screen refresh.
     """
     work = tmp_path / 'demo'
     shutil.copytree(DEMO, work)
@@ -173,6 +182,8 @@ def run_demo(tmp_path, monkeypatch, device=True, hamming=None):
     monkeypatch.setattr(prefs, '_devices', devices, raising=False)
     exp = experiment.Experiment()
     exp.loadFromXML(str(work / PSYEXP))
+    beep = [c for c in exp.routines['trial'] if c.name == 'beep'][0]
+    beep.params['syncScreenRefresh'].val = sync
     script = work / 'radboudbox_latency_audio_tester.py'
     script.write_text(exp.writeScript(str(work / PSYEXP)))
     runner = work / 'runner.py'
@@ -207,23 +218,30 @@ def test_demo_latency_tester(tmp_path, monkeypatch):
     assert 'HAMMING 0' in result.stdout
     rows = read_rows(work)
     assert len(rows) == 180
-    latencies = [float(row['audio_latency']) for row in rows]
-    # The simulated latency: never earlier (the onset is the flip of the
-    # beep, on the clock of the times of the box), the median within 1 ms.
-    # Later ones: the fake box thread and the reader thread both wait for
-    # the CPU here (container: up to about 4 ms each)
-    assert min(latencies) >= LATENCY * 1000
-    assert abs(statistics.median(latencies) - LATENCY * 1000) < 1
-    assert max(latencies) < LATENCY * 1000 + 20
-    # Diagnostics: Psychtoolbox's start 2 ms after the flip, the rest of the
-    # latency from there
+    # The timing from the play() call: the flip, Psychtoolbox's start
+    # (PTB_DELAY after the flip) and the box (LATENCY after the start). The
+    # fake box thread and the reader thread both wait for the CPU here
+    # (container: up to about 4 ms each), so later is possible, earlier not
+    tol = 0.05
     for row in rows:
+        assert row['sync'] == 'yes'
+        to_flip = float(row['play_to_flip'])
+        assert 0 <= to_flip < 40
         assert float(row['ptb_start_delay']) == pytest.approx(
             PTB_DELAY * 1000, abs=0.01)
-        assert float(row['latency_from_ptb_start']) == pytest.approx(
-            float(row['audio_latency']) - PTB_DELAY * 1000, abs=0.02)
+        assert float(row['ptb_start_after_play']) == pytest.approx(
+            to_flip + PTB_DELAY * 1000, abs=1)
+        assert float(row['latency_from_flip']) >= \
+            (PTB_DELAY + LATENCY) * 1000 - tol
+        assert float(row['audio_latency']) == pytest.approx(
+            to_flip + float(row['latency_from_flip']), abs=0.02)
+        assert float(row['latency_from_ptb_start']) >= LATENCY * 1000 - 1
         assert float(row['ptb_predicted_latency']) == 10
         assert float(row['ptb_xruns']) == 0
+        assert float(row['ptb_sample_rate']) == 48000
+    from_ptb = [float(row['latency_from_ptb_start']) for row in rows]
+    assert abs(statistics.median(from_ptb) - LATENCY * 1000) < 1
+    latencies = [float(row['latency_from_flip']) for row in rows]
     last = rows[-1]
     assert last['sound_file'] == '2000Hz_-_32bit_-_2chan_-_192000Hz.wav'
     # Numbers as numbers: PsychoPy 2027.1 (dev) writes a column with empty
@@ -239,8 +257,9 @@ def test_demo_latency_tester(tmp_path, monkeypatch):
         assert last['radboudbox_id_string'] == \
             'BITSI_extend mode, Ready! w:2018'
         assert last['hamming'] == 'yes'
-    print(f'latency median {statistics.median(latencies):.2f} ms, '
-          f'min {min(latencies):.2f}, max {max(latencies):.2f}')
+    print(f'from the flip: median {statistics.median(latencies):.2f} ms, '
+          f'min {min(latencies):.2f}, max {max(latencies):.2f}; from '
+          f'the start: median {statistics.median(from_ptb):.2f}')
 
 
 @pytest.mark.skipif(not os.environ.get('DISPLAY'),
@@ -256,6 +275,28 @@ def test_demo_without_hamming(tmp_path, monkeypatch):
     assert len(rows) == 180
     if 'participant' in rows[-1]:
         assert rows[-1]['hamming'] == 'no'
+
+
+@pytest.mark.skipif(not os.environ.get('DISPLAY'),
+                    reason='needs a display (xvfb-run)')
+def test_demo_without_sync(tmp_path, monkeypatch):
+    """The beep without sync with the screen refresh: it starts right after
+    play(), so the latency from play() is Psychtoolbox's start plus the box,
+    and there is no ptb_start_delay (no requested start).
+    """
+    result, work = run_demo(tmp_path, monkeypatch, sync=False)
+    assert result.returncode == 0, result.stdout + result.stderr
+    rows = read_rows(work)
+    assert len(rows) == 180
+    for row in rows:
+        assert row['sync'] == 'no'
+        assert row['ptb_start_delay'] in ('', 'None')
+        assert float(row['ptb_start_after_play']) == pytest.approx(
+            PTB_DELAY * 1000, abs=1)
+        assert float(row['audio_latency']) >= \
+            (PTB_DELAY + LATENCY) * 1000 - 0.05
+    from_ptb = [float(row['latency_from_ptb_start']) for row in rows]
+    assert abs(statistics.median(from_ptb) - LATENCY * 1000) < 1
 
 
 @pytest.mark.skipif(not os.environ.get('DISPLAY'),
