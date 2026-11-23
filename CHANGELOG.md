@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [0.1.1] - 2026-11-23
 
 - fixed: the Builder window did not open with the plugin installed (IndexError in psychopy_app's ComponentIcon): the component icons are now in a folder per Builder theme (light, dark, classic), 48 and 96 px, made by `tools/make_icons.py`
