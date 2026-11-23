@@ -134,7 +134,9 @@ trial.addComponent(CodeComponent(
     eachFrame=(CODE / 'each_frame.py').read_text(),
     endRoutine=(CODE / 'end_routine.py').read_text()))
 
-done = question('done', 'Done!\n\n$summary_text')
+# The text is code only when it starts with $: the whole end text is
+# summary_text
+done = question('done', '$summary_text')
 done.getComponentFromName('doneText').params['text'].updates = \
     'set every repeat'
 

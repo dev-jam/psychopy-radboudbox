@@ -51,6 +51,6 @@ if feedback_on:
         f'{tester.beeps_total})')
 else:
     feedback_text = status
-summary_text = (f'Last condition: mean {statistics["latency_mean"]} ± '
+summary_text = (f'Done!\n\nLast condition: mean {statistics["latency_mean"]} ± '
                 f'{statistics["latency_std"]} ms, n = {tester.n_trials}, '
                 f'timeouts: {tester.n_timeouts}\n\nPress a key to quit')

@@ -196,6 +196,10 @@ def read_rows(work):
 def test_demo_latency_tester(tmp_path, monkeypatch):
     result, work = run_demo(tmp_path, monkeypatch)
     assert result.returncode == 0, result.stdout + result.stderr
+    # The end screen shows the summary, not the text "$summary_text"
+    # (Builder reads a text as code only when it starts with $)
+    script = (work / 'radboudbox_latency_audio_tester.py').read_text()
+    assert 'doneText.setText(summary_text)' in script
     written = result.stdout.split('WRITTEN ')[-1].split('\n')[0].strip()
     # Calibrate Sound once, then Detect Sound before each of the 180 beeps
     assert written == repr(b'CS' + b'DS' * 180), written

@@ -92,7 +92,7 @@ def ptb_timing(status, audio_latency):
 
 feedback_on = False
 feedback_text = ''
-summary_text = ''
+summary_text = 'Done!\n\nPress a key to quit'
 # The state of the tester: Builder runs this code inside a function, so
 # the functions below change this object, not global variables
 tester = types.SimpleNamespace(

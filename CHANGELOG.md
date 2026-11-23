@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 - demo: diagnostics from Psychtoolbox's status of each beep (ptb_start_delay, latency_from_ptb_start, ptb_predicted_latency, ptb_xruns), and a hamming choice in the info dialog
+- fixed: demo: the end screen showed the text "$summary_text" instead of the summary
 
 ## [0.1.2] - 2026-11-23
 
