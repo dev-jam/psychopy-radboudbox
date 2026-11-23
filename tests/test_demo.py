@@ -186,3 +186,28 @@ def test_demo_latency_tester(tmp_path, monkeypatch):
             'BITSI_extend mode, Ready! w:2018'
     print(f'latency median {statistics.median(latencies):.2f} ms, '
           f'min {min(latencies):.2f}, max {max(latencies):.2f}')
+
+
+@pytest.mark.skipif(not os.environ.get('DISPLAY'),
+                    reason='needs a display (xvfb-run)')
+def test_demo_without_soundkey_device(tmp_path, monkeypatch):
+    """No device 'soundkey' in Device Manager (another computer): the demo
+    says what to set up, instead of an AttributeError.
+    """
+    work = tmp_path / 'demo'
+    shutil.copytree(DEMO, work)
+    monkeypatch.setattr(prefs, '_devices', dict(prefs.devices),
+                        raising=False)
+    exp = experiment.Experiment()
+    exp.loadFromXML(str(work / PSYEXP))
+    script = work / 'radboudbox_latency_audio_tester.py'
+    script.write_text(exp.writeScript(str(work / PSYEXP)))
+    runner = work / 'runner.py'
+    runner.write_text(RUNNER.format(tests=str(HERE), script=str(script),
+                                    latency=LATENCY))
+    result = subprocess.run([sys.executable, str(runner)], cwd=work,
+                            capture_output=True, text=True, timeout=300)
+    assert result.returncode != 0
+    assert "needs a device 'soundkey' in Device Manager" in result.stderr, \
+        result.stderr[-2000:]
+    assert 'Found: no device' in result.stderr

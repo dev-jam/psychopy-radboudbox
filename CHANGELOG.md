@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+- fixed: demo: without a device 'soundkey' in Device Manager the demo stopped with an AttributeError; it now says which device to set up
+
 ## [0.1.1] - 2026-11-23
 
 - fixed: the Builder window did not open with the plugin installed (IndexError in psychopy_app's ComponentIcon): the component icons are now in a folder per Builder theme (light, dark, classic), 48 and 96 px, made by `tools/make_icons.py`
