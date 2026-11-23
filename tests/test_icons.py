@@ -36,3 +36,15 @@ def test_component_icon_per_theme(component, theme):
                                      RadboudboxSoundSensorBackend])
 def test_backend_icon_exists(backend):
     assert backend.getIconFile().is_file()
+
+
+@pytest.mark.parametrize('backend', [RadboudboxButtonBoxBackend,
+                                     RadboudboxSoundSensorBackend])
+def test_backend_params_shown_in_device_manager(backend):
+    """Device Manager (psychopy_app 2026.2.1, deviceManager/panel.py) shows
+    the params of category Basic (or None) on the device's page and folds
+    the others away behind a button, as PsychoPy's own backends don't.
+    """
+    device = backend({'deviceName': None})
+    categories = {param.categ for param in device.params.values()}
+    assert categories <= {'Basic', None}, categories

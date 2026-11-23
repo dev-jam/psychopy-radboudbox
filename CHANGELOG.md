@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 - fixed: demo: without a device 'soundkey' in Device Manager the demo stopped with an AttributeError; it now says which device to set up
+- fixed: Device Manager showed the settings of a Radboud Buttonbox device folded away under "Device" (with a black page); they are now on the device's page, as for PsychoPy's own devices
 
 ## [0.1.1] - 2026-11-23
 

@@ -46,20 +46,23 @@ HERE = Path(__file__).parent
 
 
 def _device_params(profile):
-    """The settings of the box, the same for buttons and sound sensor."""
+    """The settings of the box, the same for buttons and sound sensor.
+    Category Basic, as PsychoPy's own backends: Device Manager shows them
+    on the device's page (other categories start folded away).
+    """
     params = {}
     params['radboudboxPort'] = Param(
         profile.get('port') or '', valType='str', inputType='single',
-        categ='Device', label=_translate('Port'),
+        categ='Basic', label=_translate('Port'),
         hint=_translate('Port of the box, e.g. COM3 or /dev/ttyACM0; empty: '
                         'the first buttonbox found'))
     params['radboudboxExtendedMode'] = Param(
-        True, valType='bool', inputType='bool', categ='Device',
+        True, valType='bool', inputType='bool', categ='Basic',
         label=_translate('Bitsi extended mode'),
         hint=_translate('Must match the mode of the box; needed for the '
                         'sound and voice key and for control commands'))
     params['radboudboxWrongPortSettings'] = Param(
-        'error', valType='str', inputType='choice', categ='Device',
+        'error', valType='str', inputType='choice', categ='Basic',
         allowedVals=['error', 'warning'],
         label=_translate('Wrong port settings'),
         hint=_translate('error: stop the experiment when a port setting '
@@ -114,11 +117,11 @@ class RadboudboxSoundSensorBackend(DeviceBackend):
         params, order = _device_params(profile)
         params['radboudboxSensor'] = Param(
             profile.get('sensor') or 'sound', valType='str',
-            inputType='choice', categ='Device',
+            inputType='choice', categ='Basic',
             allowedVals=['sound', 'voice'], label=_translate('Key'),
             hint=_translate('The sound key or the voice key of the box'))
         params['radboudboxCalibrate'] = Param(
-            True, valType='bool', inputType='bool', categ='Device',
+            True, valType='bool', inputType='bool', categ='Basic',
             label=_translate('Calibrate at the start'),
             hint=_translate('Calibrate the silence when the experiment '
                             'starts (1 s: be silent)'))
