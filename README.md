@@ -36,9 +36,9 @@ Install:
 
     pip install psychopy-radboudbox
 
-or in PsychoPy: Tools > Plugins/packages manager. The plugin needs Python 3.10 or later and the [RuSocSci](https://pypi.org/project/RuSocSci/) package, which is installed with it.
+or in PsychoPy: Tools > Plugins/packages manager. PsychoPy Studio can't install it yet: its plugin manager only offers the plugins registered in PsychoPy's plugin index and has no install from a file. The plugin needs Python 3.10 or later and the [RuSocSci](https://pypi.org/project/RuSocSci/) package, which is installed with it.
 
-**PsychoPy version.** The Builder part needs PsychoPy 2026.1 or later: Device Manager's device backends got their current form (`psychopy.experiment.devices`) in 2026.1; in 2025.2 they named the device label differently. Tested with PsychoPy 2026.2.5 (Linux, with a simulated box); not yet with a real box, nor on Windows or macOS.
+**PsychoPy version.** The Builder part needs PsychoPy 2026.1 or later: Device Manager's device backends got their current form (`psychopy.experiment.devices`) in 2026.1; in 2025.2 they named the device label differently. Tested with PsychoPy 2026.2.5: with a simulated box (Linux), and with a BITSI 2018 sound key in the Builder GUI (Debian trixie; see [Development](#development)); not yet confirmed on Windows, nor tested on macOS.
 
 
 ## Foreground and background items are not needed in PsychoPy
@@ -97,7 +97,7 @@ Differences with the OpenSesame tester:
 
 **Timing columns.** `audio_latency` (ms) is measured from the moment the Sound component calls `beep.play()`, as the OpenSesame tester measures from the sampler; the statistics use it. Where that time goes: `play_to_flip` (from `play()` to the flip the beep is scheduled for; with sync with the screen refresh), `latency_from_flip` (from that flip to the S of the box), `ptb_start_after_play` (when Psychtoolbox says the beep really started, after `play()`, from its own status of the beep, PsychPortAudio `GetStatus`), `ptb_start_delay` (with sync only: how late Psychtoolbox started after the flip), `latency_from_ptb_start` (from that start to the S: the sound key, USB and the plugin's reader), `ptb_predicted_latency`, `ptb_xruns`, `ptb_sample_rate` (the rate the card runs at) and `sync` (yes/no). The Psychtoolbox columns are empty with another audio library than ptb. In the info dialog, *hamming* no loads the beep without the Sound component's hamming ramp, so it starts at full volume (the column `hamming`). With *Resample* off (a speaker in Device Manager), a file is played at the card's rate as it is: a file of another rate then sounds at another pitch and length.
 
-Tested here only with a simulated box and a simulated speaker that the box hears 8 ms after the flip (`tests/test_demo.py`, 180 beeps): measured median 8.5 ms, never less than 8 ms. The plugin's own part of the error (the time S arrived − the time the simulated box sent it) was median 0.14 ms, 95% within 1.7 ms, max 4.0 ms, in a container with 4 virtual CPUs and software OpenGL (Xvfb), where the simulated box itself was up to 4.5 ms late. Not yet measured with a real box, speaker and sound card.
+Tested here only with a simulated box and a simulated speaker that the box hears 8 ms after the flip (`tests/test_demo.py`, 180 beeps): measured median 8.5 ms, never less than 8 ms. The plugin's own part of the error (the time S arrived − the time the simulated box sent it) was median 0.14 ms, 95% within 1.7 ms, max 4.0 ms, in a container with 4 virtual CPUs and software OpenGL (Xvfb), where the simulated box itself was up to 4.5 ms late. With a real box: pilot runs with a BITSI 2018 sound key on Debian trixie (see [Development](#development)); no lab test yet.
 
 
 ## Coder
@@ -149,7 +149,8 @@ The Trigger and Control components use `RadboudboxSender(device='radboudbox')`: 
       xvfb-run -a python -m pytest tests
 
   `test_hardware.py` tests the hardware classes, `test_builder.py` saves, loads, compiles and runs an experiment, `test_demo.py` runs the demo with a simulated speaker and scripted keys.
-- Not tested so far: a real box (BITSI 2015, 2018), a real sound card and speaker, the Builder GUI itself (Device Manager, only the code it generates), Windows and macOS.
+- Tested with a real box: the demo in the Builder GUI of PsychoPy 2026.2.5 with a BITSI 2018 sound key, on two similar computers with Debian trixie. On the first the beeps played and the sound key detected them (Detect Sound), without timeouts in the pilot runs; on the second the demo hung after the first beep (cause not known yet).
+- Not tested so far: a BITSI 2015, the buttons and triggers of a real box, a lab test of the timing, Windows (not confirmed to work yet), macOS and PsychoPy Studio (the plugin can't be installed there yet).
 
 
 ## License
